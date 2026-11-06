@@ -26,3 +26,7 @@ py-modules = ["numquiz"]
 
 [tool.setuptools.dynamic]
 version = { attr = "numquiz.__version__" }
+
+[project.urls]
+Homepage = "https://github.com/jonoboderbonobo/numquiz"
+Issues = "https://github.com/jonoboderbonobo/numquiz/issues"

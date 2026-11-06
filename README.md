@@ -30,7 +30,7 @@ Then just run `numquiz`.
 Latest development version straight from GitHub:
 
 ```bash
-pipx install git+https://github.com/OWNER/numquiz.git
+pipx install git+https://github.com/jonoboderbonobo/numquiz.git
 ```
 
 ## Usage
