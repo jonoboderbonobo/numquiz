@@ -8,7 +8,7 @@ Commands:
   /skip               show the answer and move on
   /clear  (or Ctrl+L) clear the board
   /help               show commands
-  /quit   (or Ctrl+D) exit
+  /quit   (or Ctrl+D) exit right away; Esc asks first
 """
 import curses
 import sys
@@ -55,7 +55,8 @@ HELP = [
     "  /options  (or Tab)  settings: conversion mode + number display",
     "  /skip               show the answer and move on",
     "  /clear  (or Ctrl+L) clear the board",
-    "  /quit   (or Ctrl+D) exit",
+    "  /quit   (or Ctrl+D) exit right away",
+    "  Esc                 quit, after asking (Enter = yes)",
     "Answers may be written with or without prefix / leading zeros.",
 ]
 
@@ -286,6 +287,7 @@ def game(scr):
     log = []   # Question objects or ("text", str) lines
     q = Question(st.mode)
     buf = ""
+    confirm_quit = False
 
     while True:
         scr.erase()
@@ -305,12 +307,18 @@ def game(scr):
         put(scr, h - 2, 0, "─" * w, C["dim"])
         hint = " /options · /skip · /clear · /help · /quit "
         put(scr, h - 2, max(0, w - len(hint) - 2), hint, C["dim"])
-        x = put(scr, h - 1, 0, "❯ ", C["accent"] | curses.A_BOLD)
-        put(scr, h - 1, x, buf)
-        try:
-            scr.move(h - 1, min(x + len(buf), w - 1))
-        except curses.error:
-            pass
+        if confirm_quit:
+            x = put(scr, h - 1, 0, "Quit numquiz? ", C["bad"])
+            put(scr, h - 1, x, "Enter = yes · any other key = no", C["dim"])
+            curses.curs_set(0)
+        else:
+            x = put(scr, h - 1, 0, "❯ ", C["accent"] | curses.A_BOLD)
+            put(scr, h - 1, x, buf)
+            curses.curs_set(1)
+            try:
+                scr.move(h - 1, min(x + len(buf), w - 1))
+            except curses.error:
+                pass
         scr.refresh()
 
         try:
@@ -319,6 +327,12 @@ def game(scr):
             return
         if k == "\x04":
             return
+        if confirm_quit:
+            if k in ("\n", "\r", curses.KEY_ENTER):
+                return
+            if k != curses.KEY_RESIZE:
+                confirm_quit = False
+            continue
         if k is None or k == curses.KEY_RESIZE or isinstance(k, int) and k not in (
                 curses.KEY_BACKSPACE, curses.KEY_ENTER):
             continue
@@ -327,7 +341,7 @@ def game(scr):
         if k in (curses.KEY_BACKSPACE, "\x7f", "\b"):
             buf = buf[:-1]
         elif k == "\x1b":
-            buf = ""
+            confirm_quit = True
         elif k == "\x0c":          # Ctrl+L
             log = []
         elif k == "\x15":          # Ctrl+U

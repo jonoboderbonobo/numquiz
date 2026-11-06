@@ -76,7 +76,8 @@ Answers may be written with or without prefix and leading zeros (`101`, `0101`, 
 | `/skip` | show the answer, next question |
 | `/clear` or Ctrl+L | clear the board |
 | `/help` | list commands |
-| `/quit` or Ctrl+D | exit |
+| `/quit` or Ctrl+D | exit right away |
+| Esc | quit – asks first, Enter confirms, any other key cancels |
 
 ### Settings
 
