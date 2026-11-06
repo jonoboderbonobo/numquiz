@@ -1,0 +1,26 @@
+# Publishes to PyPI whenever a tag like v0.2.0 is pushed.
+# One-time setup on pypi.org: add a "trusted publisher" for this repo
+# (workflow: publish.yml, environment: pypi). No API token needed.
+name: publish
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check tag matches version
+        run: |
+          v=$(python -c "import numquiz; print(numquiz.__version__)")
+          test "v$v" = "${GITHUB_REF_NAME}" || { echo "tag ${GITHUB_REF_NAME} != version $v"; exit 1; }
+      - run: pipx run build
+      - uses: pypa/gh-action-pypi-publish@release/v1
