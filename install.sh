@@ -4,7 +4,8 @@
 #   install / update:  curl -fsSL https://raw.githubusercontent.com/jonoboderbonobo/numquiz/main/install.sh | sh
 #   uninstall:         curl -fsSL https://raw.githubusercontent.com/jonoboderbonobo/numquiz/main/install.sh | sh -s uninstall
 #
-# Installs to ~/.local/bin by default; override with NUMQUIZ_DIR=/some/dir.
+# Works on Linux and macOS. Installs to ~/.local/bin by default (override with
+# NUMQUIZ_DIR=/some/dir) and adds that folder to your shell's PATH if needed.
 set -eu
 
 URL="${NUMQUIZ_URL:-https://raw.githubusercontent.com/jonoboderbonobo/numquiz/main/numquiz.py}"
@@ -22,13 +23,55 @@ uninstall() {
     else
         say "numquiz is not installed in $DIR"
     fi
+    for rc in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile"; do
+        if grep -qsF "# added by numquiz installer" "$rc"; then
+            tmp=$(mktemp)
+            grep -vF "# added by numquiz installer" "$rc" > "$tmp" && cat "$tmp" > "$rc"
+            rm -f "$tmp"
+            say "Removed the PATH line from $rc"
+        fi
+    done
     if [ -d "$CONF" ]; then
         say "Your settings are kept in $CONF (delete with: rm -r $CONF)"
     fi
 }
 
+need_python() {
+    if [ "$(uname -s)" = Darwin ]; then
+        hint="On macOS run:  xcode-select --install   (or: brew install python), then run this installer again."
+    else
+        hint="Install it with your package manager, e.g.  sudo apt install python3"
+    fi
+    die "python3 is required but not available.
+$hint"
+}
+
+# Adds DIR to PATH in the user's shell startup file (once).
+add_to_path() {
+    case "${SHELL:-}" in
+        */zsh)  rc="$HOME/.zshrc" ;;
+        */bash) if [ "$(uname -s)" = Darwin ]; then rc="$HOME/.bash_profile"; else rc="$HOME/.bashrc"; fi ;;
+        */fish) rc="" ;;
+        *)      rc="$HOME/.profile" ;;
+    esac
+    if [ -z "$rc" ]; then
+        say ""
+        say "Note: $DIR is not on your PATH. For fish run:  fish_add_path $DIR"
+        return
+    fi
+    line="export PATH=\"$DIR:\$PATH\"  # added by numquiz installer"
+    if ! grep -qsF "$line" "$rc"; then
+        printf '\n%s\n' "$line" >> "$rc"
+        say "Added $DIR to your PATH in $rc"
+    fi
+    say "Open a new terminal window, then run: numquiz"
+}
+
 install() {
-    command -v python3 >/dev/null 2>&1 || die "python3 is required but was not found"
+    # on macOS /usr/bin/python3 exists even without Python (it only opens an install dialog),
+    # so actually run it instead of just checking that the command exists
+    command -v python3 >/dev/null 2>&1 || need_python
+    python3 -c "import sys" >/dev/null 2>&1 || need_python
     python3 -c "import curses" 2>/dev/null || die "your python3 has no curses module (on Windows use WSL or 'pipx install numquiz')"
 
     tmp=$(mktemp)
@@ -54,12 +97,7 @@ install() {
     say "$action $("$BIN" --version) in $BIN"
     case ":$PATH:" in
         *":$DIR:"*) say "Run it with: numquiz" ;;
-        *)
-            say ""
-            say "Note: $DIR is not on your PATH yet. Add this line to ~/.bashrc or ~/.zshrc:"
-            say "    export PATH=\"$DIR:\$PATH\""
-            say "then open a new terminal (or run $BIN directly)."
-            ;;
+        *) add_to_path ;;
     esac
 }
 

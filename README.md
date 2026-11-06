@@ -14,7 +14,18 @@ No score, no timer – just a question, your answer, and whether it was right.
 
 ## Install
 
-Needs Python 3.8+ (already on almost every Linux and macOS system).
+Works on **Linux** and **macOS** (Terminal, iTerm2, …). Needs Python 3.8+.
+
+### macOS: get Python first (one time)
+
+Newer Macs don't have Python ready out of the box. Open Terminal and run:
+
+```bash
+xcode-select --install     # installs Apple's command line tools incl. python3 (a few minutes)
+```
+
+(or `brew install python` if you use [Homebrew](https://brew.sh)). Check with `python3 --version`.
+Linux usually has Python already; otherwise e.g. `sudo apt install python3`.
 
 ### Quick way – one line, nothing else needed
 
@@ -22,12 +33,16 @@ Needs Python 3.8+ (already on almost every Linux and macOS system).
 curl -fsSL https://raw.githubusercontent.com/jonoboderbonobo/numquiz/main/install.sh | sh
 ```
 
-This puts `numquiz` into `~/.local/bin` (change with `NUMQUIZ_DIR=/some/dir`) and tells you if that folder is not on your PATH yet.
+This puts `numquiz` into `~/.local/bin` (change with `NUMQUIZ_DIR=/some/dir`).
+If that folder isn't on your PATH yet – the default on macOS – the installer adds it to your shell
+config (`~/.zshrc` on macOS, `~/.bashrc` on Linux). Open a new terminal window afterwards and run `numquiz`.
 
 | | |
 |---|---|
 | Update | run the same command again |
 | Uninstall | `curl -fsSL https://raw.githubusercontent.com/jonoboderbonobo/numquiz/main/install.sh \| sh -s uninstall` |
+
+Uninstalling also removes the PATH line the installer added. Your settings in `~/.config/numquiz` are kept.
 
 ### With pipx or uv
 

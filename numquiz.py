@@ -132,9 +132,19 @@ ESC_SEQ = {"[A": curses.KEY_UP, "[B": curses.KEY_DOWN, "[C": curses.KEY_RIGHT, "
            "[Z": curses.KEY_BTAB}
 
 
+def get_ch(scr):
+    """get_wch where available; some curses builds (e.g. older macOS ones) only have getch."""
+    if hasattr(scr, "get_wch"):
+        return scr.get_wch()
+    k = scr.getch()
+    if k == -1:
+        raise curses.error("no input")
+    return chr(k) if 0 <= k < 256 else k
+
+
 def read_key(scr):
     """get_wch, but also decodes raw arrow-key escape sequences that curses missed."""
-    k = scr.get_wch()
+    k = get_ch(scr)
     if k != "\x1b":
         return k
     scr.nodelay(True)
@@ -142,7 +152,7 @@ def read_key(scr):
     try:
         while len(seq) < 2:
             try:
-                c = scr.get_wch()
+                c = get_ch(scr)
             except curses.error:
                 break
             seq += c if isinstance(c, str) else ""
@@ -359,7 +369,10 @@ def main():
         print(__doc__.strip())
         print("\nUpdate:    pipx upgrade numquiz\nUninstall: pipx uninstall numquiz")
         return
-    locale.setlocale(locale.LC_ALL, "")
+    try:
+        locale.setlocale(locale.LC_ALL, "")
+    except locale.Error:
+        pass
     os.environ.setdefault("ESCDELAY", "25")
     try:
         curses.wrapper(game)
