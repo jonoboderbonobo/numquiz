@@ -6,6 +6,7 @@ Full-screen terminal app. Questions scroll up, you type at the bottom.
 Commands:
   /options  (or Tab)  open the settings screen
   /skip               show the answer and move on
+  /clear  (or Ctrl+L) clear the board
   /help               show commands
   /quit   (or Ctrl+D) exit
 """
@@ -53,6 +54,7 @@ HELP = [
     "Commands:",
     "  /options  (or Tab)  settings: conversion mode + number display",
     "  /skip               show the answer and move on",
+    "  /clear  (or Ctrl+L) clear the board",
     "  /quit   (or Ctrl+D) exit",
     "Answers may be written with or without prefix / leading zeros.",
 ]
@@ -301,7 +303,7 @@ def game(scr):
                 put(scr, y, 2, item[1], C["dim"])
 
         put(scr, h - 2, 0, "─" * w, C["dim"])
-        hint = " /options · /skip · /help · /quit "
+        hint = " /options · /skip · /clear · /help · /quit "
         put(scr, h - 2, max(0, w - len(hint) - 2), hint, C["dim"])
         x = put(scr, h - 1, 0, "❯ ", C["accent"] | curses.A_BOLD)
         put(scr, h - 1, x, buf)
@@ -326,6 +328,8 @@ def game(scr):
             buf = buf[:-1]
         elif k == "\x1b":
             buf = ""
+        elif k == "\x0c":          # Ctrl+L
+            log = []
         elif k == "\x15":          # Ctrl+U
             buf = ""
         elif k in ("\n", "\r", curses.KEY_ENTER):
@@ -341,6 +345,9 @@ def game(scr):
                 if st.mode != old:
                     log.append(("text", f"── mode: {mode_label(st.mode)} ──"))
                     q = Question(st.mode)
+                continue
+            if low in ("/clear", "/cls", "/c"):
+                log = []
                 continue
             if low in ("/help", "/h", "?"):
                 log.extend(("text", line) for line in HELP)

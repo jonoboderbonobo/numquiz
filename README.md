@@ -8,7 +8,7 @@ No score, no timer – just a question, your answer, and whether it was right.
      0x3  → dec       3       ✓
       14  dec → hex   0xA     ✗  0xE
      0x7  → bin       ?
-──────────────────────── /options · /skip · /help · /quit ─
+──────────────── /options · /skip · /clear · /help · /quit ─
 ❯ 0b0111
 ```
 
@@ -74,6 +74,7 @@ Answers may be written with or without prefix and leading zeros (`101`, `0101`, 
 |---|---|
 | `/options` or Tab | settings screen |
 | `/skip` | show the answer, next question |
+| `/clear` or Ctrl+L | clear the board |
 | `/help` | list commands |
 | `/quit` or Ctrl+D | exit |
 
