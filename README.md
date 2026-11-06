@@ -14,24 +14,41 @@ No score, no timer – just a question, your answer, and whether it was right.
 
 ## Install
 
-Needs Python 3.8+. The recommended way is [pipx](https://pipx.pypa.io) (or [uv](https://docs.astral.sh/uv/)), which installs it as its own command:
+Needs Python 3.8+ (already on almost every Linux and macOS system).
+
+### Quick way – one line, nothing else needed
 
 ```bash
-pipx install numquiz            # or: uv tool install numquiz
+curl -fsSL https://raw.githubusercontent.com/jonoboderbonobo/numquiz/main/install.sh | sh
 ```
 
-Then just run `numquiz`.
+This puts `numquiz` into `~/.local/bin` (change with `NUMQUIZ_DIR=/some/dir`) and tells you if that folder is not on your PATH yet.
+
+| | |
+|---|---|
+| Update | run the same command again |
+| Uninstall | `curl -fsSL https://raw.githubusercontent.com/jonoboderbonobo/numquiz/main/install.sh \| sh -s uninstall` |
+
+### With pipx or uv
+
+If you already use [pipx](https://pipx.pypa.io) or [uv](https://docs.astral.sh/uv/):
+
+```bash
+pipx install git+https://github.com/jonoboderbonobo/numquiz.git
+# or
+uv tool install git+https://github.com/jonoboderbonobo/numquiz.git
+```
 
 | | pipx | uv |
 |---|---|---|
 | Update | `pipx upgrade numquiz` | `uv tool upgrade numquiz` |
 | Uninstall | `pipx uninstall numquiz` | `uv tool uninstall numquiz` |
 
-Latest development version straight from GitHub:
+Use only one of the two ways, since both put a `numquiz` command into `~/.local/bin`.
 
-```bash
-pipx install git+https://github.com/jonoboderbonobo/numquiz.git
-```
+### Windows
+
+Use [WSL](https://learn.microsoft.com/windows/wsl/), or the pipx way (it pulls in `windows-curses` automatically; untested).
 
 ## Usage
 
